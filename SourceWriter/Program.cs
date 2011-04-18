@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,40 +36,26 @@ namespace EsenciaDev.SourceTools.SourceWriter
             {
                 File.Delete(outputFile);
             }
-
-            string[] filePatternsToIgnore = {
-                                         "I*.cs",
-                                         "License*",
-                                         "*.xaml.cs",
-                                         "*AssemblyInfo*" //for the sharedAssemblyInfo file
-                                     };
-
-            string[] directoryPatternsToIgnore = {
-                                               "Commands",
-                                               "Interfaces",
-                                               "Properties",
-                                               "ViewModels",
-                                               "Licensing",
-                                               "Attributes",
-                                               "DirectShow",
-                                               "CaptureLib",
-                                               "lib",
-                                               "*Setup",
-                                               "ThirdParty",
-                                               "Core"
-                                           };
-
+            
             ISourceFileFactory sourceFileFactory = new CSharpSourceFileFactory();
             ISourceProcessor processor = new CSharpSourceProcessor(sourceFolder, sourceFileFactory);
 
-            processor.AddFilesToIgnore(filePatternsToIgnore);
-            processor.AddFoldersToIgnore(directoryPatternsToIgnore);
-            
+            var fileExcludeFromConfig = ConfigurationManager.AppSettings["FilesToExclude"];
+            if (!String.IsNullOrEmpty(fileExcludeFromConfig))
+            {
+                processor.AddFilesToIgnore(fileExcludeFromConfig.Split(','));
+            }
+
+            var folderExcludeFromConfig = ConfigurationManager.AppSettings["DirectoriesToExclude"];
+            if (!String.IsNullOrEmpty(folderExcludeFromConfig))
+            {
+                processor.AddFoldersToIgnore(folderExcludeFromConfig.Split(','));
+            }
+
             var sourceFiles = processor.ProcessFiles();
 
             ISourceWriter sourceWriter = new XpsWriter();
             sourceWriter.WriteSource(sourceFiles, outputFile);
-
         }
 
  

@@ -6,7 +6,7 @@ namespace EsenciaDev.SourceTools.CSharp
 
         public ISourceFile BuildSourceFile(string filePath)
         {
-            return new CSharpSourceCode(filePath);
+            return new CSharpSourceCode(filePath, removeEmptyLines: true);
         }
     }
 }
